@@ -1,0 +1,105 @@
+'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
+import { MenuIcon } from 'lucide-react';
+import { Button } from './ui/button';
+import { createClient } from '../../utils/supabase/client';
+import { Dialog, DialogContent, DialogTrigger } from '@radix-ui/react-dialog';
+
+// ...
+
+const AppSheet = ({ data }: any) => {
+  const supabase = createClient();
+  const [createdAt, setCreatedAt] = React.useState('');
+
+  React.useEffect(() => {
+    const date = new Date(data.created_at);
+    setCreatedAt(date.toLocaleDateString());
+  }, [data.created_at]);
+
+  const handleDelete = async (id: string) => {
+    await supabase.from('project').delete().match({ id });
+    window.location.reload();
+  };
+
+  return (
+    <>
+      <Sheet key="right">
+        <SheetTrigger>
+          <MenuIcon />
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>{data.title}</SheetTitle>
+          </SheetHeader>
+          <div className="px-4">
+            <div className="w-full h-[300px] overflow-y-auto border-white border rounded-2xl p-2">
+              <SheetDescription>{data.description}</SheetDescription>
+            </div>
+            <div className="flex justify-between flex-wrap">
+              <div className="mt-4">
+                <strong className="block mb-1">Player</strong>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-gray-800 rounded text-sm">{data.programmer}</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <strong className="block mb-1">Status</strong>
+                <span className={`px-2 py-1 ${data.status === 'done' ? 'bg-green-500' : data.status === 'progress' ? 'bg-yellow-500' : 'bg-red-500'} rounded text-sm`}>{data.status}</span>
+              </div>
+              <div className="mt-4">
+                <strong className="block mb-1">Priority</strong>
+                <span className={`px-2 py-1 bg-gray-800 rounded text-sm ${data.priority === 'high' ? 'bg-red-500' : data.priority === 'intermediate' ? 'bg-yellow-500' : 'bg-green-500'}`}>{data.priority}</span>
+              </div>
+            </div>{' '}
+            <div className="mt-4">
+              <strong className="block mb-1">Created At</strong>
+              <span className="px-2 py-1 bg-gray-800 rounded text-sm">{createdAt}</span>
+            </div>
+          </div>
+          <SheetFooter>
+            <ModalChangeStatus data={data} />
+            <button onClick={() => handleDelete(data.id)} className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md transition">
+              Delete
+            </button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </>
+  );
+};
+
+export default AppSheet;
+
+const ModalChangeStatus = (data: any) => {
+  const supabase = createClient();
+  const update = async (formdata: FormData) => {
+    await supabase
+      .from('project')
+      .update({ status: formdata.get('status') as string })
+      .match({ id: data.data.id });
+    window.location.reload();
+  };
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Change Status</Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <form className="flex justify-between gap-x-2">
+          <select name="status" className="border border-gray-300 rounded-md w-1/2" defaultValue={data.status}>
+            <option value="running">Running</option>
+            <option value="progress">In Progress</option>
+            <option value="testing">Testing</option>
+            <option value="done">Done</option>
+          </select>
+          <button formAction={update} className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded w-1/2">
+            Submit
+          </button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
