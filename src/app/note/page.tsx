@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import React, { useEffect, useState } from 'react';
-import { createClient } from '../../../utils/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import Api from '@/service/api';
+import { toast } from 'sonner';
 
 type Note = {
   id: string;
@@ -10,37 +12,61 @@ type Note = {
 };
 
 const NotePage = () => {
-  const supabase = createClient();
+  const api = Api();
   const [notes, setNotes] = useState<Note[]>([]);
   const [newNote, setNewNote] = useState('');
   const [editNote, setEditNote] = useState<{ id: string; note: string } | null>(null);
 
   // Fetch notes
   const fetchNotes = async () => {
-    const { data, error } = await supabase.from('note').select('*').order('id', { ascending: false });
-    if (!error) setNotes(data as Note[]);
+    try {
+      const res = await api.get('note', {});
+      if (res) {
+        setNotes(res.data);
+      }
+    } catch (error: any) {
+      toast.error('Failed to fetch notes:', error);
+    }
   };
 
   // Add note
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
-    await supabase.from('note').insert({ note: newNote });
-    setNewNote('');
-    fetchNotes();
+    try {
+      const res = await api.post('note', { note: newNote });
+      if (res) {
+        setNewNote('');
+        fetchNotes();
+      }
+    } catch (err: any) {
+      toast.error('Failed to fetch notes:', err);
+    }
   };
 
   // Delete note
   const handleDeleteNote = async (id: string) => {
-    await supabase.from('note').delete().eq('id', id);
-    fetchNotes();
+    try {
+      const res = await api.destroy(`note/${id}`, {});
+      if (res) {
+        fetchNotes();
+      }
+    } catch (err: any) {
+      toast.error('Failed to fetch notes:', err);
+    }
   };
 
   // Update note
   const handleUpdateNote = async () => {
     if (!editNote) return;
-    await supabase.from('note').update({ note: editNote.note }).eq('id', editNote.id);
-    setEditNote(null);
-    fetchNotes();
+    try {
+      const res = await api.put(`note/${editNote.id}`, { note: editNote.note });
+      if (res) {
+        setEditNote(null);
+        fetchNotes();
+      }
+    } catch (err: any) {
+      toast.error('Failed to fetch notes:', err);
+    }
   };
 
   useEffect(() => {

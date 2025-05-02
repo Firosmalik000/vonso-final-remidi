@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
-import { createClient } from '../../../utils/supabase/client';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
+import Api from '@/service/api';
 
 type User = {
   id: string;
@@ -17,35 +17,24 @@ type User = {
 
 const ModalAddProject = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const supabase = createClient();
+  const api = Api();
   async function createProject(formData: FormData) {
-    const supabase = createClient();
-
-    // Ambil user login
-    const { data: dataUserLog, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !dataUserLog?.user) {
-      toast.error('User not authenticated');
-      return;
-    }
-
     const title = formData.get('title') as string;
-    const description = formData.get('description') as string;
+    const desc = formData.get('description') as string;
     const programmer = formData.get('programmer') as string;
     const status = formData.get('status') as string;
     const priority = formData.get('priority') as string;
 
-    const { error: insertError } = await supabase.from('project').insert({
+    const postData = await api.post('project', {
       title,
-      description,
+      desc,
       programmer,
       status,
       priority,
-      is_active: 1,
     });
 
-    if (insertError) {
-      toast.error(`Failed to create project: ${insertError.message}`);
+    if (!postData) {
+      toast.error('User not authenticated');
       return;
     }
 
@@ -55,11 +44,11 @@ const ModalAddProject = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data, error } = await supabase.from('member').select('*');
-      if (error) {
-        console.error('Error fetching users:', error);
-      } else {
-        setUsers(data as User[]);
+      try {
+        const res = await api.get('user', {});
+        setUsers(res.data);
+      } catch (err: any) {
+        toast.error(err);
       }
     };
 

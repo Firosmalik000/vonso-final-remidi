@@ -3,42 +3,25 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import Api from '@/service/api';
 import { Plus } from 'lucide-react';
-import { createClient } from '../../../utils/supabase/client';
 import { toast } from 'sonner';
 
 const ModalAddMember = () => {
+  const api = Api();
   async function createMember(formData: FormData) {
-    const supabase = createClient();
-
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const username = formData.get('username') as string;
 
-    if (!email || !password || !username) {
-      toast.error('Please fill out all fields');
-      return;
-    }
-
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
-    if (signUpError || !data.user) {
-      toast.error(`Sign up failed: ${signUpError?.message || 'Unknown error'}`);
-      return;
-    }
-
-    const { error: insertError } = await supabase.from('member').insert({
-      id: data.user.id,
-      username,
+    const res = await api.post('user', {
       email,
-      role: 'user', // jangan simpan password secara langsung
+      password,
+      username,
     });
-
-    if (insertError) {
-      toast.error(`Failed to create member: ${insertError.message}`);
-      return;
+    if (res) {
+      toast.success('Member created successfully');
     }
-
-    toast.success('Member created successfully');
   }
 
   return (

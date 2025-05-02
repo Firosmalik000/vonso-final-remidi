@@ -2,17 +2,13 @@
 import AppSheet from '@/components/app-sheet';
 import React from 'react';
 import ModalAddProject from './ModalAddProject';
-import { createClient } from '../../../utils/supabase/client';
+import Api from '@/service/api';
 
 const ProjectPage = async () => {
-  const supabase = createClient();
-
-  const { data, error } = await supabase.from('project').select('*');
-  if (error) {
-    console.error('Error fetching projects:', error);
-  }
-
-  const grouped = data?.reduce((acc, project) => {
+  const api = Api();
+  const { data } = await api.get('project', {});
+  console.log(data);
+  const grouped = data?.reduce((acc: any, project: any) => {
     const { status } = project;
     if (!acc[status]) acc[status] = [];
     acc[status].push(project);

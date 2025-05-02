@@ -4,13 +4,14 @@ import React from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { MenuIcon } from 'lucide-react';
 import { Button } from './ui/button';
-import { createClient } from '../../utils/supabase/client';
 import { Dialog, DialogContent, DialogTrigger } from '@radix-ui/react-dialog';
+import { toast } from 'sonner';
+import Api from '@/service/api';
 
 // ...
 
 const AppSheet = ({ data }: any) => {
-  const supabase = createClient();
+  const api = Api();
   const [createdAt, setCreatedAt] = React.useState('');
 
   React.useEffect(() => {
@@ -19,8 +20,14 @@ const AppSheet = ({ data }: any) => {
   }, [data.created_at]);
 
   const handleDelete = async (id: string) => {
-    await supabase.from('project').delete().match({ id });
-    window.location.reload();
+    try {
+      const res = await api.destroy(`project/${id}`, {});
+      if (res) {
+        window.location.reload();
+      }
+    } catch (err: any) {
+      toast.error('Failed to fetch notes:', err);
+    }
   };
 
   return (
@@ -73,13 +80,17 @@ const AppSheet = ({ data }: any) => {
 export default AppSheet;
 
 const ModalChangeStatus = (data: any) => {
-  const supabase = createClient();
+  const api = Api();
   const update = async (formdata: FormData) => {
-    await supabase
-      .from('project')
-      .update({ status: formdata.get('status') as string })
-      .match({ id: data.data.id });
-    window.location.reload();
+    try {
+      const status = formdata.get('status') as string;
+      const res = await api.put(`project/${data.id}`, { status });
+      if (res) {
+        window.location.reload();
+      }
+    } catch (err: any) {
+      toast.error('Failed to fetch notes:', err);
+    }
   };
   return (
     <Dialog>

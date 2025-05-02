@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Home, LogOut, User, ProjectorIcon, Notebook, Plane } from 'lucide-react';
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Button } from './ui/button';
-import { logout } from '@/controller/auth';
+import Api from '@/service/api';
+import { toast } from 'sonner';
 
 // Menu items.
 const items = [
@@ -34,6 +36,20 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const api = Api();
+
+  const logout = async () => {
+    try {
+      const res = await api.post('user/logout', {});
+      if (res) {
+        toast.success(res.data.message);
+        window.localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+    } catch (err: any) {
+      toast.error('something went wrong', err.message);
+    }
+  };
   return (
     <Sidebar>
       <SidebarHeader className="border border-gray-200 rounded-2xl">

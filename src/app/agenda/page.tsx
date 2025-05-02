@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react';
 
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { createClient } from '../../../utils/supabase/client';
 import ModalAddAgenda from './ModalAddAgenda';
+import { toast } from 'sonner';
+import Api from '@/service/api';
 
 type Agenda = {
   id: string;
@@ -16,14 +17,19 @@ type Agenda = {
 };
 
 const AgendaPage = () => {
-  const supabase = createClient();
   const [agendas, setAgendas] = useState<Agenda[]>([]);
   const [form, setForm] = useState({ title: '', desc: '', date: '', icon: '' });
   const [editId, setEditId] = useState<string | null>(null);
-
+  const api = Api();
   const fetchAgendas = async () => {
-    const { data, error } = await supabase.from('agenda').select('*').order('date');
-    if (!error) setAgendas(data as Agenda[]);
+    try {
+      const res = await api.get('agenda', {});
+      if (res) {
+        setAgendas(res.data);
+      }
+    } catch (error: any) {
+      toast.error('Failed to fetch notes:', error);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -33,22 +39,40 @@ const AgendaPage = () => {
   const handleAdd = async () => {
     const { title, desc, date, icon } = form;
     if (!title || !desc || !date || !icon) return;
-    await supabase.from('agenda').insert({ title, desc, date, icon });
-    setForm({ title: '', desc: '', date: '', icon: '' });
-    fetchAgendas();
+    try {
+      const res = await api.post('agenda', { title, desc, date, icon });
+      if (res) {
+        setForm({ title: '', desc: '', date: '', icon: '' });
+        fetchAgendas();
+      }
+    } catch (err: any) {
+      toast.error('Failed to fetch notes:', err);
+    }
   };
 
   const handleUpdate = async () => {
     if (!editId) return;
-    await supabase.from('agenda').update(form).eq('id', editId);
-    setEditId(null);
-    setForm({ title: '', desc: '', date: '', icon: '' });
-    fetchAgendas();
+    try {
+      const res = await api.put(`note/${editId}`, { title: form.title, desc: form.desc, date: form.date, icon: form.icon });
+      if (res) {
+        setEditId(null);
+        setForm({ title: '', desc: '', date: '', icon: '' });
+        fetchAgendas();
+      }
+    } catch (err: any) {
+      toast.error('Failed to fetch notes:', err);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    await supabase.from('agenda').delete().eq('id', id);
-    fetchAgendas();
+    try {
+      const res = await api.destroy(`note/${id}`, {});
+      if (res) {
+        fetchAgendas();
+      }
+    } catch (err: any) {
+      toast.error('Failed to fetch notes:', err);
+    }
   };
 
   const Icon = (name: string) => {
