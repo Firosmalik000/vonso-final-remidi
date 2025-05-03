@@ -11,7 +11,6 @@ import Api from '@/service/api';
 // ...
 
 const AppSheet = ({ data }: any) => {
-  const api = Api();
   const [createdAt, setCreatedAt] = React.useState('');
 
   React.useEffect(() => {
@@ -21,7 +20,7 @@ const AppSheet = ({ data }: any) => {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await api.destroy(`project/${id}`, {});
+      const res = await Api.delete(`project/${id}`);
       if (res) {
         window.location.reload();
       }
@@ -42,13 +41,13 @@ const AppSheet = ({ data }: any) => {
           </SheetHeader>
           <div className="px-4">
             <div className="w-full h-[300px] overflow-y-auto border-white border rounded-2xl p-2">
-              <SheetDescription>{data.description}</SheetDescription>
+              <SheetDescription>{data.desc}</SheetDescription>
             </div>
             <div className="flex justify-between flex-wrap">
               <div className="mt-4">
                 <strong className="block mb-1">Player</strong>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-2 py-1 bg-gray-800 rounded text-sm">{data.programmer}</span>
+                  <span className="px-2 py-1 bg-gray-800 rounded text-sm">{data.programmer.username}</span>
                 </div>
               </div>
               <div className="mt-4">
@@ -80,11 +79,10 @@ const AppSheet = ({ data }: any) => {
 export default AppSheet;
 
 const ModalChangeStatus = (data: any) => {
-  const api = Api();
   const update = async (formdata: FormData) => {
     try {
       const status = formdata.get('status') as string;
-      const res = await api.put(`project/${data.id}`, { status });
+      const res = await Api.put(`project/${data.id}`, { status });
       if (res) {
         window.location.reload();
       }

@@ -9,18 +9,18 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const username = formData.get('username') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
     try {
       const res = await axios.post('http://localhost:5000/api/user/login', {
-        username,
         email,
         password,
       });
       console.log({ res });
       if (res) {
+        const token = res.data.token;
+        window.localStorage.setItem('token', token);
         toast.success(res.data.message);
         window.location.href = '/private';
       }
@@ -32,7 +32,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <form onSubmit={handleSubmit} className="bg-gray-700 p-8 rounded-2xl shadow-md w-full max-w-sm space-y-6">
-        <h2 className="text-2xl font-semibold text-center text-white">Sign Up</h2>
+        <h2 className="text-2xl font-semibold text-center text-white">Log In</h2>
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-white">

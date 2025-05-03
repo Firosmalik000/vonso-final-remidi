@@ -1,65 +1,68 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// ModalAddMember.tsx
 'use client';
-
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import Api from '@/service/api';
-import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
-const ModalAddMember = () => {
-  const api = Api();
+const ModalAddMember = ({ onSuccess, payload, open, setOpen }: { onSuccess: () => void; payload: any; open: boolean; setOpen: (val: boolean) => void }) => {
   async function createMember(formData: FormData) {
+    const id = formData.get('id') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const username = formData.get('username') as string;
+    const role = formData.get('role') as string;
 
-    const res = await api.post('user', {
-      email,
-      password,
-      username,
-    });
-    if (res) {
-      toast.success('Member created successfully');
+    try {
+      const res = await Api.post('user/add', { id, email, password, username, role });
+      if (res) {
+        toast.success('Member saved successfully');
+        setOpen(false);
+        onSuccess();
+      }
+    } catch (err) {
+      toast.error(`Failed to save member: ${err}`);
     }
   }
 
   return (
-    <div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Member
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Member</DialogTitle>
-            <DialogDescription>Fill in the form to add a new member.</DialogDescription>
-          </DialogHeader>
-          <form className="space-y-4 mt-4">
-            <div>
-              <label htmlFor="username">Username</label>
-              <Input id="username" name="username" type="text" required />
-            </div>
-            <div>
-              <label htmlFor="email">Email</label>
-              <Input id="email" name="email" type="email" required />
-            </div>
-            <div>
-              <label htmlFor="password">Password</label>
-              <Input id="password" name="password" type="password" required />
-            </div>
-            <div className="flex justify-end">
-              <button formAction={createMember} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition">
-                Submit
-              </button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{payload ? 'Edit Member' : 'Add New Member'}</DialogTitle>
+          <DialogDescription>Fill in the form to {payload ? 'edit' : 'add'} a member.</DialogDescription>
+        </DialogHeader>
+        <form className="space-y-4 mt-4" action={createMember}>
+          <Input id="id" name="id" type="hidden" defaultValue={payload?._id} />
+          <div>
+            <label htmlFor="username">Username</label>
+            <Input id="username" name="username" type="text" required defaultValue={payload?.username} />
+          </div>
+          <div>
+            <label htmlFor="email">Email</label>
+            <Input id="email" name="email" type="email" required defaultValue={payload?.email} />
+          </div>
+          <div>
+            <label htmlFor="password">Password</label>
+            <Input id="password" name="password" type="password" required={!payload} />
+          </div>
+          <div>
+            <label htmlFor="role">Role</label>
+            <select name="role" id="role" className="w-full border border-gray-300 rounded-md py-2 px-3" defaultValue={payload?.role || 'user'}>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+            </select>
+          </div>
+          <div className="flex justify-end">
+            <Button type="submit" className="w-full">
+              Submit
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

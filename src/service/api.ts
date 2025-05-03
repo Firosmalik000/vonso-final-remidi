@@ -1,29 +1,48 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
-const Api = () => {
-  const token = typeof window !== 'undefined' && localStorage.getItem('token');
-  if (!token) window.location.href = '/login';
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
-  const post = (url: string, data: any) => {
-    return axios.post(`http://localhost:5000/api/${url}`, data, { headers });
-  };
+const BASE_URL = 'http://localhost:5000/api';
 
-  const get = (url: string, data: any) => {
-    return axios.get(`http://localhost:5000/api/${url}`, data, { headers });
-  };
+const Api = {
+  get: (url: string) => {
+    const token = localStorage.getItem('token');
+    return axios.get(`${BASE_URL}/${url}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
 
-  const put = (url: string, data: any) => {
-    return axios.put(`http://localhost:5000/api/${url}`, data, { headers });
-  };
+  post: (url: string, data: any) => {
+    const token = localStorage.getItem('token');
+    return axios.post(`${BASE_URL}/${url}`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
 
-  const destroy = (url: string, data: any) => {
-    return axios.delete(`http://localhost:5000/api/${url}`, data, { headers });
-  };
-  return { post, get, put, destroy };
+  put: (url: string, data: any) => {
+    const token = localStorage.getItem('token');
+    return axios.put(`${BASE_URL}/${url}`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+
+  delete: (url: string) => {
+    const token = localStorage.getItem('token');
+    return axios.delete(`${BASE_URL}/${url}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
 };
 
 export default Api;

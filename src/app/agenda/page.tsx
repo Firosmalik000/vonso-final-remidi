@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import Api from '@/service/api';
 
 type Agenda = {
-  id: string;
+  _id: string;
   title: string;
   desc: string;
   date: string;
@@ -20,10 +20,9 @@ const AgendaPage = () => {
   const [agendas, setAgendas] = useState<Agenda[]>([]);
   const [form, setForm] = useState({ title: '', desc: '', date: '', icon: '' });
   const [editId, setEditId] = useState<string | null>(null);
-  const api = Api();
   const fetchAgendas = async () => {
     try {
-      const res = await api.get('agenda', {});
+      const res = await Api.get('agenda');
       if (res) {
         setAgendas(res.data);
       }
@@ -40,7 +39,7 @@ const AgendaPage = () => {
     const { title, desc, date, icon } = form;
     if (!title || !desc || !date || !icon) return;
     try {
-      const res = await api.post('agenda', { title, desc, date, icon });
+      const res = await Api.post('agenda', { title, desc, date, icon });
       if (res) {
         setForm({ title: '', desc: '', date: '', icon: '' });
         fetchAgendas();
@@ -53,7 +52,7 @@ const AgendaPage = () => {
   const handleUpdate = async () => {
     if (!editId) return;
     try {
-      const res = await api.put(`note/${editId}`, { title: form.title, desc: form.desc, date: form.date, icon: form.icon });
+      const res = await Api.put(`note/${editId}`, { title: form.title, desc: form.desc, date: form.date, icon: form.icon });
       if (res) {
         setEditId(null);
         setForm({ title: '', desc: '', date: '', icon: '' });
@@ -66,7 +65,7 @@ const AgendaPage = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await api.destroy(`note/${id}`, {});
+      const res = await Api.delete(`agenda/${id}`);
       if (res) {
         fetchAgendas();
       }
@@ -95,7 +94,7 @@ const AgendaPage = () => {
         {/* List */}
         <div className="space-y-4">
           {agendas.map((item) => (
-            <div key={item.id} className="bg-gray-700 rounded shadow p-4 flex items-start justify-between">
+            <div key={item._id} className="bg-gray-700 rounded shadow p-4 flex items-start justify-between">
               <div className="flex gap-4">
                 <div>{Icon(item.icon)}</div>
                 <div>
@@ -114,13 +113,13 @@ const AgendaPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setEditId(item.id);
+                    setEditId(item._id);
                     setForm(item);
                   }}
                 >
                   <LucideIcons.Pencil />
                 </Button>
-                <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>
+                <Button variant="destructive" size="sm" onClick={() => handleDelete(item._id)}>
                   <LucideIcons.Trash />
                 </Button>
               </div>

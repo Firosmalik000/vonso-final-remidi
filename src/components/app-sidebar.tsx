@@ -36,11 +36,9 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const api = Api();
-
   const logout = async () => {
     try {
-      const res = await api.post('user/logout', {});
+      const res = await Api.post('user/logout', {});
       if (res) {
         toast.success(res.data.message);
         window.localStorage.removeItem('token');

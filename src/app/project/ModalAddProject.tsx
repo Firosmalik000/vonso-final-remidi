@@ -10,14 +10,12 @@ import { useEffect, useState } from 'react';
 import Api from '@/service/api';
 
 type User = {
-  id: string;
+  _id: string;
   username: string;
-  // Tambahkan field lain jika perlu
 };
 
 const ModalAddProject = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const api = Api();
   async function createProject(formData: FormData) {
     const title = formData.get('title') as string;
     const desc = formData.get('description') as string;
@@ -25,7 +23,7 @@ const ModalAddProject = () => {
     const status = formData.get('status') as string;
     const priority = formData.get('priority') as string;
 
-    const postData = await api.post('project', {
+    const postData = await Api.post('project', {
       title,
       desc,
       programmer,
@@ -45,7 +43,7 @@ const ModalAddProject = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await api.get('user', {});
+        const res = await Api.get('user');
         setUsers(res.data);
       } catch (err: any) {
         toast.error(err);
@@ -90,7 +88,7 @@ const ModalAddProject = () => {
               <select name="programmer" required>
                 <option value="">Select Programmer</option>
                 {users.map((user) => (
-                  <option key={user.id} value={user.username}>
+                  <option key={user._id} value={user._id}>
                     {user.username}
                   </option>
                 ))}
