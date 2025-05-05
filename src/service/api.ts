@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = "vonso-final-remidi-backend-production.up.railway.app/api";
 
 const Api = {
   get: (url: string) => {
