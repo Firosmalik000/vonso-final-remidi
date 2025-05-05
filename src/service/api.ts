@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
-const BASE_URL = "vonso-final-remidi-backend-production-7512.up.railway.app/api";
+const BASE_URL = 'https://vonso-final-remidi-backend-production-7512.up.railway.app/api';
 
 const Api = {
   get: (url: string) => {
@@ -11,6 +11,7 @@ const Api = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      withCredentials: true,
     });
   },
 
@@ -21,6 +22,7 @@ const Api = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      withCredentials: true,
     });
   },
 
@@ -31,6 +33,7 @@ const Api = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      withCredentials: true,
     });
   },
 
@@ -41,6 +44,7 @@ const Api = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      withCredentials: true,
     });
   },
 };
