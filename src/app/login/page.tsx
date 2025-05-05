@@ -16,7 +16,7 @@ export default function LoginPage() {
       const res = await axios.post("https://vonso-final-remidi-backend-production-7512.up.railway.app/api/user/login", {
 			email,
 			password,
-		});
+		}, { withCredentials: true});
       console.log({ res });
       if (res) {
         const token = res.data.token;
