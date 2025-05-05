@@ -15,7 +15,7 @@ export default function SignUpPage() {
 
 		try {
 			await axios
-				.post("vonso-final-remidi-backend-production.up.railway.app/api/user/signup", {
+				.post("vonso-final-remidi-backend-production-7512.up.railway.app/api/user/signup", {
 					username,
 					email,
 					password,
