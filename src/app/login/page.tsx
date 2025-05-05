@@ -13,7 +13,7 @@ export default function LoginPage() {
     const password = formData.get('password') as string;
 
     try {
-      const res = await axios.post("vonso-final-remidi-backend-production-7512.up.railway.app/api/user/login", {
+      const res = await axios.post("https://vonso-final-remidi-backend-production-7512.up.railway.app/api/user/login", {
 			email,
 			password,
 		});
