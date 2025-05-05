@@ -12,7 +12,6 @@ import Api from '@/service/api';
 
 const AppSheet = ({ data }: any) => {
   const [createdAt, setCreatedAt] = React.useState('');
-
   React.useEffect(() => {
     const date = new Date(data.created_at);
     setCreatedAt(date.toLocaleDateString());
@@ -66,7 +65,7 @@ const AppSheet = ({ data }: any) => {
           </div>
           <SheetFooter>
             <ModalChangeStatus data={data} />
-            <button onClick={() => handleDelete(data.id)} className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md transition">
+            <button onClick={() => handleDelete(data._id)} className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md transition">
               Delete
             </button>
           </SheetFooter>
@@ -78,18 +77,22 @@ const AppSheet = ({ data }: any) => {
 
 export default AppSheet;
 
-const ModalChangeStatus = (data: any) => {
-  const update = async (formdata: FormData) => {
+const ModalChangeStatus = ({ data }: { data: any }) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const status = formData.get('status') as string;
+
     try {
-      const status = formdata.get('status') as string;
-      const res = await Api.put(`project/${data.id}`, { status });
+      const res = await Api.put(`project/${data._id}`, { status });
       if (res) {
         window.location.reload();
       }
     } catch (err: any) {
-      toast.error('Failed to fetch notes:', err);
+      toast.error('Failed to update status:', err);
     }
   };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -97,14 +100,14 @@ const ModalChangeStatus = (data: any) => {
       </DialogTrigger>
 
       <DialogContent>
-        <form className="flex justify-between gap-x-2">
+        <form onSubmit={handleSubmit} className="flex justify-between gap-x-2">
           <select name="status" className="border border-gray-300 rounded-md w-1/2" defaultValue={data.status}>
             <option value="running">Running</option>
             <option value="progress">In Progress</option>
             <option value="testing">Testing</option>
             <option value="done">Done</option>
           </select>
-          <button formAction={update} className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded w-1/2">
+          <button type="submit" className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded w-1/2">
             Submit
           </button>
         </form>
